@@ -3,7 +3,7 @@ import { registerInstrumentations } from '@opentelemetry/instrumentation'
 import { DocumentLoadInstrumentation } from '@opentelemetry/instrumentation-document-load'
 import { Resource } from '@opentelemetry/resources'
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
-import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base'
+import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base'
 import { WebTracerProvider } from '@opentelemetry/sdk-trace-web'
 
 export const initTracer = () => {
@@ -17,7 +17,7 @@ export const initTracer = () => {
 
   // Connect to Lightstep by configuring the exporter with your endpoint and access token.
   tracerProvider.addSpanProcessor(
-    new SimpleSpanProcessor(
+    new BatchSpanProcessor(
       new CollectorTraceExporter({
         url: 'https://ingest.lightstep.com:443/traces/otlp/v0.9',
         headers: {
