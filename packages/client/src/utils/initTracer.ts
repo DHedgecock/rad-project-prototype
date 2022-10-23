@@ -1,4 +1,4 @@
-import { CollectorTraceExporter } from '@opentelemetry/exporter-collector'
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
 import { registerInstrumentations } from '@opentelemetry/instrumentation'
 import { DocumentLoadInstrumentation } from '@opentelemetry/instrumentation-document-load'
 import { Resource } from '@opentelemetry/resources'
@@ -14,20 +14,15 @@ export const initTracer = () => {
       [SemanticResourceAttributes.SERVICE_VERSION]: '1.0.0',
     }),
   })
+  const exporter = new OTLPTraceExporter({
+    url: 'https://ingest.lightstep.com:443/traces/otlp/v0.9',
+    headers: {
+      'Lightstep-Access-Token': process.env.REACT_APP_LIGHTSTEP_ACCESS_TOKEN,
+    },
+  })
+  const processor = new BatchSpanProcessor(exporter)
 
-  // Connect to Lightstep by configuring the exporter with your endpoint and access token.
-  tracerProvider.addSpanProcessor(
-    new BatchSpanProcessor(
-      new CollectorTraceExporter({
-        url: 'https://ingest.lightstep.com:443/traces/otlp/v0.9',
-        headers: {
-          'Lightstep-Access-Token': process.env.REACT_APP_LIGHTSTEP_ACCESS_TOKEN,
-        },
-      }),
-    ),
-  )
-
-  // Register the tracer
+  tracerProvider.addSpanProcessor(processor)
   tracerProvider.register()
 
   // Registering instrumentations
