@@ -1,0 +1,8 @@
+{
+  "name": "rad-project",
+  "workspaces": [
+    "packages/client",
+    "packages/shared-api",
+    "packages/service-user"
+  ]
+}
