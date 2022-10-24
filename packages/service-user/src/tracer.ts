@@ -1,4 +1,4 @@
-// @ts-check
+import * as dotenv from 'dotenv'
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
 import { registerInstrumentations } from '@opentelemetry/instrumentation'
 import { FastifyInstrumentation } from '@opentelemetry/instrumentation-fastify'
@@ -7,6 +7,8 @@ import { Resource } from '@opentelemetry/resources'
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base'
 import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node'
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
+
+dotenv.config()
 
 const tracerProvider = new NodeTracerProvider({
   resource: new Resource({
@@ -18,8 +20,7 @@ const tracerProvider = new NodeTracerProvider({
 const exporter = new OTLPTraceExporter({
   url: 'https://ingest.lightstep.com:443/traces/otlp/v0.9',
   headers: {
-    'Lightstep-Access-Token':
-      'dNXIcqmLofuS5HU4RERNnKO5rCzmS9J0ZEfhYv1vTClUQMmt/SQFuuccjYD4qijsyqSmk1i4RuENqgP+x0Q+WQU+wbOcXCSDEdkWl4Hw',
+    'Lightstep-Access-Token': process.env.LIGHTSTEP_ACCESS_TOKEN,
   },
 })
 const processor = new BatchSpanProcessor(exporter)
