@@ -1,17 +1,40 @@
 package main
 
 import (
-	"encoding/json"
+	"context"
 	"errors"
 	"log"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 )
 
 func main() {
-	mux := routes()
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
-	log.Println("service-projects startin on :9001")
-	err := http.ListenAndServe(":9001", mux)
+	tracerProvider := initTracerProvider()
+	defer func() {
+		log.Println("shutting down trace provider")
+		// Shutdown will flush any remaining spans and shut down the exporter.
+		if err := tracerProvider.Shutdown(context.Background()); err != nil {
+			log.Fatal(err)
+		}
+		log.Println("Tracer Provider shut down")
+	}()
+
+	router := gin.Default()
+	router.SetTrustedProxies(nil)
+	router.Use(otelgin.Middleware("service-projects"))
+
+	router.GET("/api/v1/projects", getProjects)
+
+	err = router.Run(":9001")
+
 	if errors.Is(err, http.ErrServerClosed) {
 		log.Println("server closed")
 	} else if err != nil {
@@ -20,26 +43,14 @@ func main() {
 
 }
 
-func routes() http.Handler {
-	mux := http.NewServeMux()
-
-	mux.HandleFunc("/api/v1/projects", getProjects)
-	return mux
-}
-
 type Projects struct {
 	Projects []string `json:"projects"`
 }
 
-func getProjects(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("content-type", "application/json")
-
+func getProjects(c *gin.Context) {
 	projects := Projects{
 		Projects: []string{"learn go", "write rad code"},
 	}
 
-	err := json.NewEncoder(w).Encode(projects)
-	if err != nil {
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-	}
+	c.JSON(200, projects)
 }
