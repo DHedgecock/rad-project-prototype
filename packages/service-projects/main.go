@@ -23,7 +23,7 @@ func main() {
 func routes() http.Handler {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/projects", getProjects)
+	mux.HandleFunc("/api/v1/projects", getProjects)
 	return mux
 }
 

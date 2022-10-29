@@ -35,6 +35,7 @@ server.get('/api/v1/user', async (request, reply): Promise<UserAPIRes> => {
 const start = async () => {
   try {
     await server.listen({ port: 9000 })
+    console.log('service-user listening on :9000')
   } catch (err) {
     server.log.error(err)
     process.exit(1)
