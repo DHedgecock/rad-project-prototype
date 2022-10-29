@@ -1,7 +1,7 @@
 {
   "name": "rad-project",
   "workspaces": [
-    "packages/client",
+    "packages/app",
     "packages/shared-api",
     "packages/service-user"
   ]

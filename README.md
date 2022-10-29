@@ -10,3 +10,5 @@ npm init -w ./packages/<PACKAGE_NAME>
 
 npm install <DEPENDENCY> -w <PACKAGE_NAME>
 ```
+
+Using protobufs or Zod??
