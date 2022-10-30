@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
-import { UserAPIRes } from 'shared-api'
+import { useState } from 'react'
+import { z } from 'zod'
 
+import { UserAPIRes } from 'shared-api'
 import '@/lib/tracer'
 import styles from './page.module.css'
 
@@ -55,9 +56,15 @@ async function fetchUser(): Promise<UserAPIRes> {
   return user
 }
 
-async function fetchProjects(): Promise<{ projects: string[] }> {
+const Projects = z.object({
+  projects: z.array(z.string()),
+})
+
+type ProjectsAPIRes = z.infer<typeof Projects>
+
+async function fetchProjects(): Promise<ProjectsAPIRes> {
   const res = await fetch('/api/v1/projects')
   if (!res.ok) throw new Error('Res not ok')
   const projects = await res.json()
-  return projects
+  return Projects.parse(projects)
 }
